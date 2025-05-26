@@ -4,6 +4,7 @@ import { AiOutlineHome } from "react-icons/ai";
 import { BiMessageRoundedDetail } from "react-icons/bi";
 import { Link } from "react-router-dom";
 
+
 const Navbar = () => {
   return (
     <nav className="fixed left-0 top-0 h-full w-60 bg-white border-r border-gray-300 p-4 flex flex-col justify-between z-50">
@@ -26,7 +27,7 @@ const Navbar = () => {
 </li>
           <li className="flex items-center space-x-4 cursor-pointer hover:text-blue-500">
             <BiMessageRoundedDetail className="h-6 w-6" />
-            <span className="text-lg">Messages</span>
+             <Link to="/chat" className="text-lg">Message</Link>
           </li>
           <li className="flex items-center space-x-4 cursor-pointer hover:text-blue-500">
   <BiMessageRoundedDetail className="h-6 w-6" />

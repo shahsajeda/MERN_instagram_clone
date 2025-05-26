@@ -6,7 +6,7 @@ import Home from "./pages/Home";
 import Navbar from "./components/Navbar";
 import Profile from "./pages/Profile";
 import UploadPost from "./pages/UploadPost";
-import Chat from "./pages/Chat";
+import Chat from "./components/Chat";
 
 
 // 🔐 PrivateRoute for protected pages

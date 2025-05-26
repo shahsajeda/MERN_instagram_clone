@@ -316,7 +316,7 @@ const Profile = () => {
 
       {/* Posts */}
       <div className="grid grid-cols-3 gap-4 mt-8">
-        {posts.length > 0 ? (
+        {/* {posts.length > 0 ? (
           posts.map((post) => (
             <div
               key={post._id}
@@ -342,7 +342,44 @@ const Profile = () => {
           ))
         ) : (
           <p className="col-span-3 text-center text-gray-500">No posts yet.</p>
-        )}
+        )} */}
+        {posts.length > 0 ? (
+  posts.map((post) => (
+    <div
+      key={post._id}
+      className="relative w-full aspect-square bg-gray-100 flex flex-col items-center justify-center rounded overflow-hidden"
+    >
+      {post.postFile.endsWith(".mp4") ? (
+        <video controls className="w-full h-full object-cover rounded-lg">
+          <source src={post.postFile} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      ) : (
+       <img
+                src={post.postFile}
+                alt="Post"
+                className="w-full h-full object-cover"
+              />
+      )}
+
+      {post.caption && (
+        <p className="absolute bottom-2 left-2 right-2 text-white bg-black bg-opacity-50 text-sm p-1 rounded">
+          {post.caption}
+        </p>
+      )}
+
+      <button
+        onClick={() => handleDeletePost(post._id)}
+        className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 text-xs rounded hover:bg-red-600"
+      >
+        Delete
+      </button>
+    </div>
+  ))
+) : (
+  <p className="col-span-3 text-center text-gray-500">No posts yet.</p>
+)}
+
       </div>
     </div>
   );
