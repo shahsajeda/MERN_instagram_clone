@@ -63,6 +63,7 @@ router.get("/user/:username", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch posts" });
   }
 });
+//delete a post
 router.delete("/:postId", auth, async (req, res) => {
   try {
     const postId = req.params.postId;
@@ -88,5 +89,15 @@ if (postUserId !== userId) {
   }
 });
 
+// ✅ Get all posts (from all users)
+// GET /api/posts
+router.get('/', async (req, res) => {
+  try {
+    const posts = await Post.find().sort({ createdAt: -1 });
+    res.json(posts);
+  } catch (err) {
+    res.status(500).json({ error: 'Server error while fetching posts' });
+  }
+});
 
 module.exports = router;

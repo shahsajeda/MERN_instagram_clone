@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require("../models/User");
 
 const auth = require("../middleware/auth");
+// adjust the path
 
 
 // router.put("/update", auth, async (req, res) => {
@@ -39,5 +40,25 @@ router.put("/update-bio", auth, async (req, res) => {
     res.status(500).json({ error: "Failed to update user" });
   }
 });
+
+// // PUT /api/users/update-profile-pic
+// router.put(
+//   "/update-profile-pic",
+//   auth,
+//   upload.single("profilePic"),
+//   async (req, res) => {
+//     try {
+//       const profilePicUrl = `http://localhost:5000/uploads/${req.file.filename}`;
+//       const updatedUser = await User.findByIdAndUpdate(
+//         req.user.id,
+//         { profilePic: profilePicUrl },
+//         { new: true }
+//       );
+//       res.json(updatedUser);
+//     } catch (err) {
+//       res.status(500).json({ error: "Failed to update profile picture" });
+//     }
+//   }
+// );
 
 module.exports = router;
