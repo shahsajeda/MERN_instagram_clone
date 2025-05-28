@@ -27,6 +27,9 @@ const express = require("express");
 const router = express.Router();
 const Post = require("../models/Post");
 const auth = require("../middleware/auth");
+const likePost=require("../Controller/postController");
+const User = require("../models/User");
+
 
 // 🔹 Upload post
 router.post("/", auth, async (req, res) => {
@@ -99,5 +102,100 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Server error while fetching posts' });
   }
 });
+// const { likePost } = require("./Controller/postController"); // if it's in controllers/postsController.js
+router.put('/likeunlike/:postId', auth, likePost.likeUnlikePost);
+// router.put("/like/:postId", auth, likePost);
+
+// POST /api/posts/comment/:postId
+router.post("/comment/:postId", auth, async (req, res) => {
+  try {
+    const { text } = req.body;
+    const post = await Post.findById(req.params.postId);
+
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const user = await User.findById(req.user.id); // 👈 fetch full user
+
+    const comment = {
+      userId: user._id,
+      username: user.username,
+      text,
+    };
+
+    post.comments.push(comment);
+    await post.save();
+
+    res.json({ message: "Comment added", comments: post.comments });
+  } catch (err) {
+    console.error("Comment error:", err);
+    res.status(500).json({ error: "Failed to add comment" });
+  }
+});
+
+// GET /api/posts/:postId
+router.get("/:postId", async (req, res) => {
+  try {
+    const post = await Post.findById(req.params.postId).populate("comments.userId", "username profilePic");
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    res.json(post);
+  } catch (err) {
+    console.error("Get post error:", err);
+    res.status(500).json({ error: "Failed to fetch post" });
+  }
+});
+
+router.put("/like-comment/:postId/:commentIndex", auth, async (req, res) => {
+  try {
+    const { postId, commentIndex } = req.params;
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const comment = post.comments[commentIndex];
+    const userId = req.user.id;
+
+    const isLiked = comment.likes.includes(userId);
+    if (isLiked) {
+      comment.likes.pull(userId);
+    } else {
+      comment.likes.push(userId);
+    }
+
+    await post.save();
+    res.json(comment);
+  } catch (err) {
+    console.error("Comment like error:", err);
+    res.status(500).json({ error: "Failed to like/unlike comment" });
+  }
+});
+// Add reply to comment
+router.post("/reply/:postId/:commentIndex", auth, async (req, res) => {
+  try {
+    const { text } = req.body;
+    const { postId, commentIndex } = req.params;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+
+    const reply = {
+      userId: req.user.id,
+      username: req.user.username,
+      text,
+      likes: []
+    };
+
+    post.comments[commentIndex].replies.push(reply);
+    await post.save();
+
+    res.json(post.comments[commentIndex]);
+  } catch (err) {
+    console.error("Reply error:", err);
+    res.status(500).json({ error: "Failed to add reply" });
+  }
+});
+
+
+
+
 
 module.exports = router;
