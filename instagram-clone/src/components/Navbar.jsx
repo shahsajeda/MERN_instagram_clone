@@ -19,6 +19,7 @@ const Navbar = () => {
     { icon: <BsChatDots className="h-6 w-6" />, label: "Chat", path: "/chat" },
     { icon: <FiUpload className="h-6 w-6" />, label: "Upload POST", path: "/upload" },
     { icon: <CgProfile className="h-6 w-6" />, label: "Profile", path: "/profile" },
+    { icon: <AiOutlineHome className="h-6 w-6" />, label: "Search", path: "/search" },
   ];
 
   return (
@@ -66,7 +67,9 @@ const Navbar = () => {
         <div className="absolute bottom-4 left-4 flex items-center space-x-3">
           <div className="h-10 w-10 rounded-full bg-gray-300"></div>
           <div className="text-gray-600 font-medium">Username</div>
+          
         </div>
+        
       </nav>
     </>
   );

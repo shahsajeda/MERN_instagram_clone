@@ -8,6 +8,9 @@ import Profile from "./pages/Profile";
 import UploadPost from "./pages/UploadPost";
 import Chat from "./components/Chat";
 
+ import SearchPage from './pages/SearchPage';
+
+
 
 // 🔐 PrivateRoute for protected pages
 const PrivateRoute = ({ children }) => {
@@ -86,6 +89,17 @@ function App() {
     </PrivateRoute>
   }
 />
+ 
+
+<Route
+  path="/search"
+  element={
+    <PrivateRoute>
+      <SearchPage />  {/* ✅ Correct usage */}
+    </PrivateRoute>
+  }
+/>
+
 
       </Routes>
     </>

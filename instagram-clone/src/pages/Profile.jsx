@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
+import { searchUsers, followUser ,unfollowUser} from "../utils/api";
 const EditProfileCard = ({ onClose }) => {
   const [bio, setBio] = useState("This is my bio...");
   const [gender, setGender] = useState("Male");
@@ -13,9 +13,7 @@ const EditProfileCard = ({ onClose }) => {
         "http://localhost:5000/api/users/update-bio",
         { bio, gender },
         {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
 
@@ -73,26 +71,56 @@ const EditProfileCard = ({ onClose }) => {
     </div>
   );
 };
-// ...Keep imports and EditProfileCard as is
+
 
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [posts, setPosts] = useState([]);
   const [showEditCard, setShowEditCard] = useState(false);
+  
+  const loggedInUser = JSON.parse(localStorage.getItem("user"));
+  const loggedInUserId = loggedInUser?._id;
 
-  useEffect(() => {
-    const userData = localStorage.getItem("user");
-    if (userData) {
-      const parsedUser = JSON.parse(userData);
-      setUser(parsedUser);
+  
+  // useEffect(() => {
+  //   const userData = localStorage.getItem("user");
+  //   if (userData) {
+  //     const parsedUser = JSON.parse(userData);
+  //     setUser(parsedUser);
+  //     fetchUserPosts(parsedUser.username);
 
-      fetchUserPosts(parsedUser.username);
+  //     if (!parsedUser.bio || !parsedUser.gender || !parsedUser.profilePic) {
+  //       setShowEditCard(true);
+  //     }
+  //   }
+  // }, []);
+useEffect(() => {
+  const fetchProfile = async () => {
+    try {
+      const loggedInUser = JSON.parse(localStorage.getItem("user"));
+      if (!loggedInUser) return;
 
-      if (!parsedUser.bio || !parsedUser.gender || !parsedUser.profilePic) {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`http://localhost:5000/api/users/profile/${loggedInUser.id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const fetchedUser = res.data;
+
+      setUser(fetchedUser);
+
+      fetchUserPosts(fetchedUser.username);
+
+      if (!fetchedUser.bio || !fetchedUser.gender || !fetchedUser.profilePic) {
         setShowEditCard(true);
       }
+    } catch (err) {
+      console.error("Error fetching profile:", err);
     }
-  }, []);
+  };
+
+  fetchProfile();
+}, []);
+
 
   const fetchUserPosts = async (username) => {
     try {
@@ -103,6 +131,7 @@ const Profile = () => {
     }
   };
 
+
   const handleProfilePicChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -112,7 +141,6 @@ const Profile = () => {
 
     try {
       const token = localStorage.getItem("token");
-
       const res = await axios.put(
         "http://localhost:5000/api/uploads/update-profile-pic",
         formData,
@@ -123,7 +151,6 @@ const Profile = () => {
           },
         }
       );
-
       const updatedUser = res.data;
       localStorage.setItem("user", JSON.stringify(updatedUser));
       setUser(updatedUser);
@@ -138,9 +165,7 @@ const Profile = () => {
     try {
       const token = localStorage.getItem("token");
       await axios.delete(`http://localhost:5000/api/posts/${postId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       setPosts(posts.filter((post) => post._id !== postId));
     } catch (error) {
@@ -148,6 +173,8 @@ const Profile = () => {
       alert("Failed to delete post");
     }
   };
+  
+
 
   if (!user) return <div className="text-center mt-10">Loading...</div>;
 
@@ -157,10 +184,7 @@ const Profile = () => {
       <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8 space-y-4 sm:space-y-0">
         <label className="cursor-pointer relative group">
           <img
-            src={
-              user.profilePic ||
-              "https://render.fineartamerica.com/images/rendered/default/poster/7/8/break/images/artworkimages/medium/3/doremon-deepak-pengoria.jpg"
-            }
+            src={user.profilePic || "https://render.fineartamerica.com/images/rendered/default/poster/7/8/break/images/artworkimages/medium/3/doremon-deepak-pengoria.jpg"}
             alt="profile"
             className="rounded-full w-32 h-32 object-cover border-2 border-gray-300 group-hover:opacity-60 transition"
           />
@@ -178,11 +202,15 @@ const Profile = () => {
         <div className="text-center sm:text-left">
           <h1 className="text-3xl font-bold">{user.username}</h1>
           <p className="text-gray-600 mt-1">{user.bio || "Your bio goes here..."}</p>
+
           <div className="flex justify-center sm:justify-start space-x-6 mt-3">
-            <p><strong>{posts.length}</strong> posts</p>
-            <p><strong>340</strong> followers</p>
-            <p><strong>180</strong> following</p>
-          </div>
+  <p><strong>{posts.length}</strong> posts</p>
+  <p><strong>{user.followers?.length || 0}</strong> followers</p>
+  <p><strong>{user.following?.length || 0}</strong> following</p>
+</div>
+
+
+
           <button
             onClick={() => setShowEditCard(true)}
             className="mt-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
@@ -223,13 +251,11 @@ const Profile = () => {
                   className="w-full h-full object-cover"
                 />
               )}
-
               {post.caption && (
                 <p className="absolute bottom-0 left-0 right-0 text-white bg-black bg-opacity-50 text-xs p-1 truncate">
                   {post.caption}
                 </p>
               )}
-
               <button
                 onClick={() => handleDeletePost(post._id)}
                 className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 text-xs rounded hover:bg-red-700"
@@ -247,4 +273,3 @@ const Profile = () => {
 };
 
 export default Profile;
-
