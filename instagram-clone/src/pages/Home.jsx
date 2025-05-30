@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Navbar from "../components/Navbar";
 import { FaHeart, FaRegComment } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -16,6 +17,11 @@ const Home = () => {
 
   const [users, setUsers] = useState([]);
 
+const navigate = useNavigate();
+
+const navigateToProfile = (userId) => {
+  navigate(`/profile/${userId}`);
+};
 
 useEffect(() => {
   fetchPosts();
@@ -131,18 +137,64 @@ const fetchUsers = async () => {
     }
   };
 
+const dummyStories = [
+  {
+    id: 1,
+    username: "alice",
+    profilePic: "https://i.pravatar.cc/150?img=1",
+  },
+  {
+    id: 2,
+    username: "bob",
+    profilePic: "https://i.pravatar.cc/150?img=2",
+  },
+  {
+    id: 3,
+    username: "charlie",
+    profilePic: "https://i.pravatar.cc/150?img=3",
+  },
+  {
+    id: 4,
+    username: "diana",
+    profilePic: "https://i.pravatar.cc/150?img=4",
+  },
+  {
+    id: 5,
+    username: "emma",
+    profilePic: "https://i.pravatar.cc/150?img=5",
+  },
+  {
+    id: 6,
+    username: "frank",
+    profilePic: "https://i.pravatar.cc/150?img=6",
+  },
+];
 
-return (
-  <div className="bg-gradient-to-b from-gray-100 to-purple-100 min-h-screen pb-12 pt-2">
+
+  return (
+  <div className="bg-gradient-to-b from-gray-100 to-purple-100 min-h-screen pb-12 pt-2 md:ml-60">
     <Navbar />
-    <h1 className="text-center text-4xl font-bold mt-8 mb-10 text-purple-800">
-      Instagram Clone
-    </h1>
+    {/* STORIES SECTION */}
+<div className="flex gap-4 overflow-x-auto px-6 py-4">
+  {dummyStories.map((story) => (
+    <div key={story.id} className="flex flex-col items-center text-xs text-purple-700">
+      <img
+        src={story.profilePic}
+        alt={story.username}
+        className="w-16 h-16 rounded-full border-2 border-purple-400 p-1 object-cover"
+      />
+      <span className="mt-1 truncate w-16 text-center">{story.username}</span>
+    </div>
+  ))}
+</div>
+
+    
 
     {/* MAIN LAYOUT */}
     <div className="flex flex-col md:flex-row max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 gap-6">
       {/* LEFT: POSTS */}
-      <div className="flex-1">
+<div className="flex-1 ">
+
         {posts.length === 0 ? (
           <p className="text-center text-gray-500">No posts yet...</p>
         ) : (
@@ -223,33 +275,43 @@ return (
       </div>
 
       {/* RIGHT: SUGGESTED USERS */}
-      <div className="w-full md:w-1/3 lg:w-1/4">
-        <div className="bg-white rounded-xl shadow-md p-4 sticky top-20 md:top-24">
-          <h2 className="text-xl font-semibold text-purple-700 mb-4">
-            Suggested Users
-          </h2>
-          <div className="flex flex-col gap-4">
-            {users.length === 0 ? (
-              <p className="text-gray-500">No users found</p>
-            ) : (
-              users.map((user) => (
-                <div
-                  key={user._id}
-                  className="flex items-center gap-3 cursor-pointer hover:bg-purple-50 rounded-md p-2 transition"
-                  onClick={() => navigateToProfile(user._id)}
-                >
-                  <img
-                    src={user.profilePic || "/default-profile.png"}
-                    alt={user.username}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-purple-400"
-                  />
-                  <p className="text-sm text-purple-700 truncate">{user.username}</p>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
+     <div className="w-full md:w-1/3 lg:w-1/4">
+  <div className="bg-white rounded-xl shadow-lg p-3  top-2 border border-purple-100">
+
+    <h2 className="text-2xl font-bold text-purple-700 mb-6 border-b pb-2 border-purple-200">
+      Suggested Users
+    </h2>
+
+    <div className="flex flex-col gap-4">
+      {users.length === 0 ? (
+        <p className="text-gray-500 text-sm text-center">No users found</p>
+      ) : (
+      users
+  .filter((user) => user._id !== currentUserId)
+  .map((user) => (
+    <div
+      key={user._id}
+      className="flex items-center gap-3 cursor-pointer hover:bg-purple-50 rounded-lg p-3 transition duration-200 ease-in-out shadow-sm hover:shadow-md"
+      onClick={() => navigateToProfile(user._id)}
+    >
+      <img
+        src={user.profilePic || "/default-profile.png"}
+        alt={user.username}
+        className="w-12 h-12 rounded-full object-cover border-2 border-purple-300"
+      />
+      <div className="flex flex-col">
+        <span className="text-sm font-semibold text-purple-800 truncate">{user.username}</span>
+        <span className="text-xs text-gray-500">@{user.username.toLowerCase()}</span>
       </div>
+    </div>
+  ))
+
+      )}
+    </div>
+
+  </div>
+</div>
+
     </div>
 
     {/* COMMENT MODAL */}

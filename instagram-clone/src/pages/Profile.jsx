@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { searchUsers, followUser ,unfollowUser} from "../utils/api";
+import { useParams } from "react-router-dom";
+
 const EditProfileCard = ({ onClose }) => {
   const [bio, setBio] = useState("This is my bio...");
   const [gender, setGender] = useState("Male");
@@ -80,6 +82,8 @@ const Profile = () => {
   
   const loggedInUser = JSON.parse(localStorage.getItem("user"));
   const loggedInUserId = loggedInUser?._id;
+  const { userId } = useParams();
+
 
   
   // useEffect(() => {
@@ -94,32 +98,95 @@ const Profile = () => {
   //     }
   //   }
   // }, []);
+// useEffect(() => {
+//   const fetchProfile = async () => {
+//     try {
+//       const loggedInUser = JSON.parse(localStorage.getItem("user"));
+//       if (!loggedInUser) return;
+
+//       const token = localStorage.getItem("token");
+//       const res = await axios.get(`http://localhost:5000/api/users/profile/${loggedInUser.id}`, {
+//         headers: { Authorization: `Bearer ${token}` },
+//       });
+//       const fetchedUser = res.data;
+
+//       setUser(fetchedUser);
+
+//       fetchUserPosts(fetchedUser.username);
+
+//       if (!fetchedUser.bio || !fetchedUser.gender || !fetchedUser.profilePic) {
+//         setShowEditCard(true);
+//       }
+//     } catch (err) {
+//       console.error("Error fetching profile:", err);
+//     }
+//   };
+
+//   fetchProfile();
+// }, []);
 useEffect(() => {
-  const fetchProfile = async () => {
-    try {
-      const loggedInUser = JSON.parse(localStorage.getItem("user"));
-      if (!loggedInUser) return;
+ const fetchProfile = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const loggedInUser = JSON.parse(localStorage.getItem("user"));
+   const loggedInUserId = loggedInUser?._id || loggedInUser?.id;
 
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`http://localhost:5000/api/users/profile/${loggedInUser.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const fetchedUser = res.data;
+console.log("loggedInUserId: ",loggedInUserId);
 
-      setUser(fetchedUser);
 
-      fetchUserPosts(fetchedUser.username);
+    if (!loggedInUserId) return;
 
-      if (!fetchedUser.bio || !fetchedUser.gender || !fetchedUser.profilePic) {
+    const res1 = await axios.get(
+      `http://localhost:5000/api/users/profile/${loggedInUserId}`,
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    const profile1 = res1.data;
+
+    if (userId && userId !== loggedInUserId) {
+      const res2 = await axios.get(
+        `http://localhost:5000/api/users/profile/${userId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+
+      const profile2 = res2.data;
+      setUser(profile2);
+      fetchUserPosts(profile2.username);
+
+      if (
+        loggedInUserId === profile2._id &&
+        (!profile2.bio || !profile2.gender || !profile2.profilePic)
+      ) {
         setShowEditCard(true);
       }
-    } catch (err) {
-      console.error("Error fetching profile:", err);
+      
+    } 
+    
+    else {
+      setUser(profile1);
+      fetchUserPosts(profile1.username);
+
+      if (
+        !profile1.bio || !profile1.gender || !profile1.profilePic
+      ) {
+        setShowEditCard(true);
+      }
     }
-  };
+    
+  } 
+  
+  catch (err) {
+    console.error("Error fetching profile:", err);
+  }
+};
+
 
   fetchProfile();
-}, []);
+}, [userId]);
+
+
+
 
 
   const fetchUserPosts = async (username) => {
@@ -211,12 +278,15 @@ useEffect(() => {
 
 
 
-          <button
-            onClick={() => setShowEditCard(true)}
-            className="mt-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
-          >
-            Edit Profile
-          </button>
+        {loggedInUserId === user._id && (
+  <button
+    onClick={() => setShowEditCard(true)}
+    className="mt-4 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+  >
+    Edit Profile
+  </button>
+)}
+
         </div>
       </div>
 
@@ -256,12 +326,15 @@ useEffect(() => {
                   {post.caption}
                 </p>
               )}
-              <button
-                onClick={() => handleDeletePost(post._id)}
-                className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 text-xs rounded hover:bg-red-700"
-              >
-                Delete
-              </button>
+             {loggedInUserId === user._id && (
+  <button
+    onClick={() => handleDeletePost(post._id)}
+    className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 text-xs rounded hover:bg-red-700"
+  >
+    Delete
+  </button>
+)}
+
             </div>
           ))
         ) : (
