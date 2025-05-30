@@ -250,20 +250,25 @@ console.log("loggedInUserId: ",loggedInUserId);
       {/* Profile Header */}
       <div className="flex flex-col sm:flex-row items-center sm:items-start sm:space-x-8 space-y-4 sm:space-y-0">
         <label className="cursor-pointer relative group">
+         
           <img
             src={user.profilePic || "https://render.fineartamerica.com/images/rendered/default/poster/7/8/break/images/artworkimages/medium/3/doremon-deepak-pengoria.jpg"}
             alt="profile"
             className="rounded-full w-32 h-32 object-cover border-2 border-gray-300 group-hover:opacity-60 transition"
           />
+          
           <span className="absolute bottom-2 left-1/2 transform -translate-x-1/2 bg-black text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition">
             Change Photo
           </span>
+          
+           {loggedInUserId === user._id &&(
           <input
             type="file"
             accept="image/*"
             className="hidden"
             onChange={handleProfilePicChange}
           />
+          )}
         </label>
 
         <div className="text-center sm:text-left">
@@ -326,7 +331,7 @@ console.log("loggedInUserId: ",loggedInUserId);
                   {post.caption}
                 </p>
               )}
-             {loggedInUserId === user._id && (
+             {loggedInUserId == user._id && (
   <button
     onClick={() => handleDeletePost(post._id)}
     className="absolute top-2 right-2 bg-red-600 text-white px-2 py-1 text-xs rounded hover:bg-red-700"

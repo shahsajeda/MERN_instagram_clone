@@ -3,23 +3,34 @@ import React, { useState } from "react";
 import { AiOutlineHome, AiOutlineMenu, AiOutlineClose } from "react-icons/ai";
 import { BsChatDots } from "react-icons/bs";
 import { FiUpload } from "react-icons/fi";
-import { CgProfile } from "react-icons/cg";
-import { Link, useLocation } from "react-router-dom";
+import { CgProfile,CgSearch } from "react-icons/cg";
+import { Link, useLocation,useNavigate } from "react-router-dom";
+import { FiLogOut } from "react-icons/fi";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
 
   const toggleMenu = () => {
     setMenuOpen(!menuOpen);
   };
+  const handleLogout = () => {
+  localStorage.removeItem("token");
+  // window.location.href = "/login";
+  navigate("/login") // or use navigate("/login") if using react-router
+};
+
 
   const navItems = [
     { icon: <AiOutlineHome className="h-6 w-6" />, label: "Home", path: "/home" },
     { icon: <BsChatDots className="h-6 w-6" />, label: "Chat", path: "/chat" },
     { icon: <FiUpload className="h-6 w-6" />, label: "Upload POST", path: "/upload" },
+    { icon: <CgSearch className="h-6 w-6" />, label: "Search", path: "/search" },
     { icon: <CgProfile className="h-6 w-6" />, label: "Profile", path: "/profile" },
-    { icon: <AiOutlineHome className="h-6 w-6" />, label: "Search", path: "/search" },
+    
+
   ];
 
   return (
@@ -64,12 +75,15 @@ const Navbar = () => {
         </ul>
 
         {/* Bottom Profile Placeholder */}
-        <div className="absolute bottom-4 left-4 flex items-center space-x-3">
-          <div className="h-10 w-10 rounded-full bg-gray-300"></div>
-          <div className="text-gray-600 font-medium">Username</div>
-          
-        </div>
         
+        <div
+  onClick={handleLogout}
+  className="flex items-center gap-4 p-2 pt--10 text-red-500 cursor-pointer hover:bg-red-100 rounded-xl mt-10"
+>
+  <FiLogOut className="h-6 w-6" />
+  <span>Logout</span>
+</div>
+
       </nav>
     </>
   );
